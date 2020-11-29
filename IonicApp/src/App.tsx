@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -22,16 +21,25 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import BookList from './todo/BookList';
+import { BookProvider } from './todo/BookProvider';
+import BookEdit from './todo/BookEdit';
+
 
 const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path="/home" component={Home} exact={true} />
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
+    <IonApp>
+      <BookProvider>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <Route path="/books" component={BookList} exact={true} />
+            <Route path="/book" component={BookEdit} exact={true} />
+            <Route path="/book/:id" component={BookEdit} exact={true} />
+            <Route exact path="/" render={() => <Redirect to="/books" />} />
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </BookProvider>
   </IonApp>
 );
 
 export default App;
+ 
