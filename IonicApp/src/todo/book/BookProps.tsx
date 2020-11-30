@@ -4,5 +4,5 @@ export interface BookProps {
     title: string;
     genre: string;
     firstPublished: string;
-    translated: boolean;
+    finishedReading: boolean;
 }

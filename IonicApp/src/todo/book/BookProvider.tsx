@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useReducer } from "react";
+import React, { useCallback, useContext, useEffect, useReducer } from "react";
 import { BookProps } from "./BookProps";
 import PropTypes from 'prop-types';
 import { getItems, createItem, editItem, createWebSocket } from "./BookApi";
-import { getLogger } from '../core';
+import { getLogger } from '../../core';
+import { AuthContext } from "../auth";
 
 const log = getLogger('BookProvider');
 
@@ -50,11 +51,11 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
             const item = payload.item;
             const index = items.findIndex(it => it._id === item._id);
             if (index === -1) {
-                items.splice(items.length, 1, item);
+                items.splice(items.length, 0, item);
             } else {
                 items[index] = item;
             }
-            return {...state, items, saving: false};
+            return {...state, items: items, saving: false};
         case SAVE_ITEM_FAILED:
             return {...state, savingError: payload.error, saving: false};
         default:
@@ -69,11 +70,12 @@ interface BookProviderProps {
 }
 
 export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
+    const { token } = useContext(AuthContext);
     const [state, dispatch] = useReducer(reducer, initialState);
     const { items, fetching, fetchingError, saving, savingError } = state;
-    useEffect(getBooksEffect, []);
-    useEffect(ws, [])
-    const saveBook = useCallback<saveItemFunction>(saveBookCallback, []);
+    useEffect(getBooksEffect, [token]);
+    useEffect(ws, [token])
+    const saveBook = useCallback<saveItemFunction>(saveBookCallback, [token]);
     const value  = {items, fetching, fetchingError, saving, savingError, saveItem: saveBook };
     return (
         <BookContext.Provider value={value}>
@@ -89,27 +91,36 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
         }
 
         async function fetchBooks() {
-            try {
-                log('fetchBooks started');
-                dispatch({type: FETCH_ITEMS_STARTED});
-                const items = await getItems();
-                log('fetchBooks successful');
-                if (!canceled) {
-                    dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: items}})
-                }
+            let canceled = false;
+            fetchBooks();
+            return () => {
+                canceled = true;
             }
-            catch (error) {
-                log('fetchBooks failed');
-                dispatch({type: FETCH_ITEMS_FAILED, payload: {error: error}})
+
+            async function fetchBooks() {
+                if (!token?.trim()) return;
+                try {
+                    log('fetchBooks started');
+                    dispatch({type: FETCH_ITEMS_STARTED});
+                    const items = await getItems(token);
+                    log('fetchBooks successful');
+                    if (!canceled) {
+                        dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: items}})
+                    }
+                } catch (error) {
+                    log('fetchBooks failed');
+                    dispatch({type: FETCH_ITEMS_FAILED, payload: {error: error}});
+                }
             }
         }
     }
+
 
     async function saveBookCallback(item: BookProps) {
         try {
             log('saveBook started');
             dispatch({ type: SAVE_ITEM_STARTED });
-            const updatedItem = await (item._id ? editItem(item) : createItem(item))
+            const updatedItem = await (item._id ? editItem(token, item) : createItem(token, item))
             log('saveBook successful');
             dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item: updatedItem}});
         }
@@ -121,19 +132,24 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
 
     function ws() {
         let canceled = false;
-        log('web socket connecting');
-        const closeWebSocket = createWebSocket(message => {
-            if (canceled) return;
-            const {event, payload: {item}} = message;
-            log(`web socket - item ${event}`);
-            if (event === 'created' || event === 'updated') {
-                dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item: item}});
+        log('wsEffect - connecting');
+        let closeWebSocket: () => void;
+        if (token?.trim()) {
+          closeWebSocket = createWebSocket(token, message => {
+            if (canceled) {
+              return;
             }
-        });
+            const { type, payload: item } = message;
+            log(`ws message, item ${type}`);
+            if (type === 'created' || type === 'updated') {
+              dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item } });
+            }
+          });
+        }
         return () => {
-            log('web socket disconnecting');
-            canceled = true;
-            closeWebSocket();
+          log('wsEffect - disconnecting');
+          canceled = true;
+          closeWebSocket?.();
         }
     }
 }
