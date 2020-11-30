@@ -1,4 +1,4 @@
-This app manages a reading list (each book identified by id, title, genre, reading starting date and whether or not the reading is over). It's cuurently able to :
+This app manages a reading list (each book identified by id, title, genre, reading starting date and whether or not the reading is over). It's currently able to :
 
   -> show a master-detail UI
   
