@@ -63,7 +63,6 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
         <IonPage>
             <IonHeader>
                 <IonToolbar>
-                    <IonTitle>My Reading List</IonTitle>
                     <IonItem>
                         <IonSelect value={filter} placeholder="Pick a genre" onIonChange={(e) => setFilter(e.detail.value)}>
                             {genres.map((each) => (
@@ -72,7 +71,7 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                 </IonSelectOption>
                             ))}
                         </IonSelect>
-                        <IonSearchbar value={search} debounce={200} onIonChange={(e) => {
+                        <IonSearchbar placeholder="Search by title" value={search} debounce={200} onIonChange={(e) => {
                             setSearch(e.detail.value!);
                         }}>
 

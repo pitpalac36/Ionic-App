@@ -1,10 +1,11 @@
-import { IonButton, IonButtons, IonContent, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonPage, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from '@ionic/react';
 import React, { useEffect } from 'react';
 import { useContext, useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { BookContext } from './BookProvider';
 import { getLogger } from '../../core';
 import { BookProps } from './BookProps';
+import moment from 'moment';
 
 const log = getLogger('ItemEdit');
 
@@ -62,15 +63,24 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
             </IonItem>
             <IonItem>
                 <IonLabel>Genre:  </IonLabel>
-                <IonInput placeholder="genre" value={genre} onIonChange={e => setGenre(e.detail.value || '')}/>
+                <IonSelect value={genre} onIonChange={e => setGenre(e.detail.value)}>
+                    <IonSelectOption value="war">war</IonSelectOption>
+                    <IonSelectOption value="crime">crime</IonSelectOption>
+                    <IonSelectOption value="drama">drama</IonSelectOption>
+                    <IonSelectOption value="romance">romance</IonSelectOption>
+                    <IonSelectOption value="thriller">thriller</IonSelectOption>
+                    <IonSelectOption value="comedy">comedy</IonSelectOption>
+                    <IonSelectOption value="fantasy">fantasy</IonSelectOption>
+                </IonSelect>
+                
             </IonItem>
             <IonItem>
                 <IonLabel>Started Reading: </IonLabel>
-                <IonInput placeholder="started reading" value={startedReading} onIonChange={e => setstartedReading(e.detail.value || '')}/>
+                <IonDatetime displayFormat="DD MMM YYYY" pickerFormat="DD MMM YYYY" value={startedReading} onBlur={e => setstartedReading((moment(e.target.value).format('DD MMM YYYY')) || moment(new Date()).format('DD MMM YYYY'))}/>
             </IonItem>
             <IonItem>
                 <IonLabel>Finished Reading: </IonLabel>
-                <IonInput placeholder="finishedReading" value={finishedReading.toString()} onIonChange={e => setfinishedReading((e.detail.value === 'true') || false)}/>
+                <IonToggle checked={finishedReading} onIonChange={e => setfinishedReading(e.detail.checked)}/>
             </IonItem>
             <IonLoading isOpen={saving}/>
             {savingError && (
