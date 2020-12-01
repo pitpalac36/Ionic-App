@@ -49,9 +49,11 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
         case SAVE_ITEM_SUCCEEDED:
             const items = [...(state.items || [])]
             const item = payload.item;
-            const index = items.findIndex(it => it._id === item._id);
+            console.log(item);
+            
+            const index = items.findIndex(it => it._id == item._id);
             if (index === -1) {
-                items.splice(items.length, 0, item);
+                items.splice(0, 0, item);
             } else {
                 items[index] = item;
             }

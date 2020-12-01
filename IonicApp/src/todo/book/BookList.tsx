@@ -26,7 +26,7 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
     }, [items]);
 
     function fetchData() {
-        setVisibleItems(items?.slice(0, page));
+        setVisibleItems(items?.slice(0, page + offset));
         setPage(page + offset);
         if (items && page > items?.length) {
             setDisabledInfiniteScroll(true);
@@ -60,11 +60,11 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                 <IonLabel>ID</IonLabel>
                                 <IonLabel>Title</IonLabel>
                                 <IonLabel>Genre</IonLabel>
-                                <IonLabel>First Published</IonLabel>
+                                <IonLabel>Started Reading</IonLabel>
                                 <IonLabel>Reading finished</IonLabel>
                             </IonListHeader>
-                            {Array.from(visibleItems).map(({_id, title, genre, firstPublished, finishedReading}) => 
-                            <Book key={_id} _id={_id} title={title} genre={genre} firstPublished={firstPublished} finishedReading={finishedReading || false}  onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
+                            {Array.from(visibleItems).filter(each => each._id !== undefined).map(({_id, title, genre, startedReading, finishedReading}) => 
+                            <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
                         </IonList>
                     )
                 }

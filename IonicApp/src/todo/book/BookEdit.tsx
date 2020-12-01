@@ -17,7 +17,7 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
     const {items, saving, savingError, saveItem } = useContext(BookContext);
     const [title, setTitle] = useState('');
     const [genre, setGenre] = useState('');
-    const [firstPublished, setFirstPublished] = useState('');
+    const [startedReading, setstartedReading] = useState('');
     const [finishedReading, setfinishedReading] = useState(false);
     const [item, setItem] = useState<BookProps>();
 
@@ -29,14 +29,14 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
         if (item) {
             setTitle(item.title);
             setGenre(item.genre);
-            setFirstPublished(item.firstPublished);
+            setstartedReading(item.startedReading);
             setfinishedReading(item.finishedReading);
         }
     }, [match.params.id, items]);
 
     const handleSave = () => {
         log('entered handleSave');
-        const editedItem = item ? {...item, title, genre, firstPublished, finishedReading } : { title, genre, firstPublished, finishedReading };
+        const editedItem = item ? {...item, title, genre, startedReading, finishedReading } : { title, genre, startedReading, finishedReading };
         console.log(editedItem);
         saveItem && saveItem(editedItem).then(() => {history.goBack()});
     };
@@ -65,8 +65,8 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
                 <IonInput placeholder="genre" value={genre} onIonChange={e => setGenre(e.detail.value || '')}/>
             </IonItem>
             <IonItem>
-                <IonLabel>First Published: </IonLabel>
-                <IonInput placeholder="first published" value={firstPublished} onIonChange={e => setFirstPublished(e.detail.value || '')}/>
+                <IonLabel>Started Reading: </IonLabel>
+                <IonInput placeholder="started reading" value={startedReading} onIonChange={e => setstartedReading(e.detail.value || '')}/>
             </IonItem>
             <IonItem>
                 <IonLabel>Finished Reading: </IonLabel>

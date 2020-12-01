@@ -3,6 +3,6 @@ export interface BookProps {
     _id?: string;
     title: string;
     genre: string;
-    firstPublished: string;
+    startedReading: string;
     finishedReading: boolean;
 }
