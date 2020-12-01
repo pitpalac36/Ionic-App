@@ -1,4 +1,4 @@
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonTitle, IonToolbar } from "@ionic/react";
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonTitle, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { BookContext } from "./BookProvider";
@@ -18,26 +18,44 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
     const [disableInfiniteScroll, setDisabledInfiniteScroll] = useState<boolean>(false);
     const [visibleItems, setVisibleItems] = useState<BookProps[] | undefined>([]);
     const [page, setPage] = useState(offset)
+    const [filter, setFilter] = useState<string | undefined>(undefined);
+    const [search, setSearch] = useState<string>("");
+
+    const genres = ["war", "crime", "drama", "romance", "thriller", "comedy", "fantasy"];
 
     useEffect(() => {
-        log('filter effect');
         setPage(offset);
-        fetchData();
+        fetchData(items);
     }, [items]);
 
-    function fetchData() {
-        setVisibleItems(items?.slice(0, page + offset));
+    useEffect(() => {
+        if (items && filter) {
+            setVisibleItems(items.filter(each => each.genre === filter));
+        }
+    }, [filter]);
+
+    useEffect(() => {
+        if (search === "") {
+            setVisibleItems(items);
+        }
+        if (items && search!= "") {
+            setVisibleItems(items.filter(each => each.title.startsWith(search)));
+        }
+    }, [search])
+
+    function fetchData(data: BookProps[] | undefined) {
+        setVisibleItems(data?.slice(0, page + offset));
         setPage(page + offset);
-        if (items && page > items?.length) {
+        if (data && page > data?.length) {
             setDisabledInfiniteScroll(true);
-            setPage(items.length);
+            setPage(data.length);
         } else {
             setDisabledInfiniteScroll(false);
         }
     }
 
     async function searchNext($event: CustomEvent<void>) {
-        fetchData();
+        fetchData(items);
         ($event.target as HTMLIonInfiniteScrollElement).complete();
     }
     
@@ -46,6 +64,20 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
             <IonHeader>
                 <IonToolbar>
                     <IonTitle>My Reading List</IonTitle>
+                    <IonItem>
+                        <IonSelect value={filter} placeholder="Pick a genre" onIonChange={(e) => setFilter(e.detail.value)}>
+                            {genres.map((each) => (
+                                <IonSelectOption key={each} value={each}>
+                                        {each}
+                                </IonSelectOption>
+                            ))}
+                        </IonSelect>
+                        <IonSearchbar value={search} debounce={200} onIonChange={(e) => {
+                            setSearch(e.detail.value!);
+                        }}>
+
+                        </IonSearchbar>
+                    </IonItem>
                 </IonToolbar>
             </IonHeader>
 
@@ -63,8 +95,14 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                 <IonLabel>Started Reading</IonLabel>
                                 <IonLabel>Reading finished</IonLabel>
                             </IonListHeader>
-                            {Array.from(visibleItems).filter(each => each._id !== undefined).map(({_id, title, genre, startedReading, finishedReading}) => 
-                            <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
+                            {Array.from(visibleItems)
+                                .filter(each => {
+                                    if (filter !== undefined)  
+                                        return each.genre === filter && each._id !== undefined;
+                                    return each._id !== undefined;
+                                })
+                                .map(({_id, title, genre, startedReading, finishedReading}) => 
+                                <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
                         </IonList>
                     )
                 }
