@@ -125,7 +125,7 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
 
                 <IonFab vertical="bottom" horizontal="start" slot="fixed">
                     <IonFabButton onClick={handleLogout}>
-                        Logout
+                        LOG OUT
                     </IonFabButton>
                 </IonFab>
             </IonContent>

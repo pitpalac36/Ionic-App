@@ -4,8 +4,10 @@ import PropTypes from 'prop-types';
 import { getItems, createItem, editItem, createWebSocket } from "./BookApi";
 import { getLogger } from '../../core';
 import { AuthContext } from "../auth";
+import { Plugins } from "@capacitor/core";
 
 const log = getLogger('BookProvider');
+const { Storage } = Plugins;
 
 export type saveItemFunction = (item : any) => Promise<any>;
 
@@ -43,7 +45,7 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
         case FETCH_ITEMS_SUCCEEDED:
             return {...state, items: payload.items, fetching: false};
         case FETCH_ITEMS_FAILED:
-            return {...state, items: payload.error, fetching: false};
+            return {...state, items: payload.items, fetching: false};
         case SAVE_ITEM_STARTED:
             return {...state, savingError: null, saving: true};
         case SAVE_ITEM_SUCCEEDED:
@@ -110,8 +112,24 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                         dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: items}})
                     }
                 } catch (error) {
-                    log('fetchBooks failed');
-                    dispatch({type: FETCH_ITEMS_FAILED, payload: {error: error}});
+                    //dispatch({type: FETCH_ITEMS_FAILED, payload: {error: error}});
+                    let storageKeys = Storage.keys();
+                    const books = await storageKeys.then(async function (storageKeys) {
+                        console.log("######################");
+                        const saved = [];
+                        for (let i = 0; i < storageKeys.keys.length; i++) {
+                            if (storageKeys.keys[i] != 'token') {
+                                const book = await Storage.get({key : storageKeys.keys[i]});
+                                if (book.value != null)
+                                    var parsedBook = JSON.parse(book.value);
+                                saved.push(parsedBook);
+                            }
+                        }
+                        return saved;
+                    });
+                    const b = books;
+                    console.log(b);
+                    dispatch({type: FETCH_ITEMS_FAILED, payload: {items: b}});
                 }
             }
         }
