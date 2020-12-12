@@ -53,7 +53,7 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState =
             const item = payload.item;
             console.log(item);
             
-            const index = items.findIndex(it => it._id == item._id);
+            const index = items.findIndex(it => it._id === item._id);
             if (index === -1) {
                 items.splice(0, 0, item);
             } else {
@@ -112,13 +112,11 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                         dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: items}})
                     }
                 } catch (error) {
-                    //dispatch({type: FETCH_ITEMS_FAILED, payload: {error: error}});
                     let storageKeys = Storage.keys();
                     const books = await storageKeys.then(async function (storageKeys) {
-                        console.log("######################");
                         const saved = [];
                         for (let i = 0; i < storageKeys.keys.length; i++) {
-                            if (storageKeys.keys[i] != 'token') {
+                            if (storageKeys.keys[i] !== "token") {
                                 const book = await Storage.get({key : storageKeys.keys[i]});
                                 if (book.value != null)
                                     var parsedBook = JSON.parse(book.value);
@@ -127,9 +125,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                         }
                         return saved;
                     });
-                    const b = books;
-                    console.log(b);
-                    dispatch({type: FETCH_ITEMS_FAILED, payload: {items: b}});
+                    dispatch({type: FETCH_ITEMS_FAILED, payload: {items: books}});
                 }
             }
         }

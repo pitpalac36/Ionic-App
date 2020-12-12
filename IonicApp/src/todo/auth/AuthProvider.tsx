@@ -85,14 +85,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     async function authenticate() {
-      var token = await Storage.get({key : "token"});
-      if (token.value) {
-        setState({...state, token: token.value, pendingAuthentication: false, isAuthenticated: true, isAuthenticating: false});
-      }
-      if (!pendingAuthentication) {
-        log('authenticate, !pendingAuthentication, return');
-        return;
-      }
+        var token = await Storage.get({key : "token"});
+        if (token.value !== null) {
+          setState({...state, token: token.value, pendingAuthentication: false, isAuthenticated: true, isAuthenticating: false});
+        }
+        if (!pendingAuthentication) {
+          log('authenticate, !pendingAuthentication, return');
+          return;
+        }
       try {
         log('authenticate...');
         setState({
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return;
         }
         log('authenticate succeeded');
-        await Storage.set({key: "token", value: token });
+        await Storage.set( {key: "token", value: token });
         setState({
           ...state,
           token,

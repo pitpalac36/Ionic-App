@@ -1,4 +1,4 @@
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonTitle, IonToolbar } from "@ionic/react";
+import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { BookContext } from "./BookProvider";
@@ -24,8 +24,11 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
     const genres = ["war", "crime", "drama", "romance", "thriller", "comedy", "fantasy"];
 
     useEffect(() => {
-        setPage(offset);
-        fetchData(items);
+        if (items?.length && items?.length > 0) {
+            setPage(offset);
+            fetchData();
+            console.log(items);
+        }
     }, [items]);
 
     useEffect(() => {
@@ -38,24 +41,24 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
         if (search === "") {
             setVisibleItems(items);
         }
-        if (items && search!= "") {
+        if (items && search !== "") {
             setVisibleItems(items.filter(each => each.title.startsWith(search)));
         }
     }, [search])
 
-    function fetchData(data: BookProps[] | undefined) {
-        setVisibleItems(data?.slice(0, page + offset));
+    function fetchData() {
+        setVisibleItems(items?.slice(0, page + offset));
         setPage(page + offset);
-        if (data && page > data?.length) {
+        if (items && page > items?.length) {
             setDisabledInfiniteScroll(true);
-            setPage(data.length);
+            setPage(items.length);
         } else {
             setDisabledInfiniteScroll(false);
         }
     }
 
     async function searchNext($event: CustomEvent<void>) {
-        fetchData(items);
+        fetchData();
         ($event.target as HTMLIonInfiniteScrollElement).complete();
     }
     

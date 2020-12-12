@@ -16,7 +16,7 @@ interface MessageData {
 }
 
 export const getItems: (token: string) => Promise<BookProps[]> = token => {
-    //return withLogs(axios.get(`${baseUrl}/books`, authConfig(token)), 'getItems');
+  try {
     var result = axios.get(`${baseUrl}/books`, authConfig(token));
     result.then(async result => {
       for (const each of result.data) {
@@ -31,8 +31,21 @@ export const getItems: (token: string) => Promise<BookProps[]> = token => {
             })
           });
       }
-    });
+    }).catch(err => {
+      if (err.response) {
+        console.log('client received an error response (5xx, 4xx)');
+      } else if (err.request) {
+        console.log('client never received a response, or request never left');
+        //alert('offline');
+      } else {
+        console.log('anything else');
+      }
+  })
     return withLogs(result, 'getItems');
+  } catch (error) {
+    throw error;
+  }
+    
 }
 
 export const createItem: (token: string, book: BookProps) => Promise<BookProps[]> = (token, book) => {
@@ -79,11 +92,13 @@ export const createWebSocket = (token: string, onMessage: (data: MessageData) =>
       log('web socket onopen');
       ws.send(JSON.stringify({ type: 'authorization', payload: { token } }));
     };
-    ws.onclose = () => {
+    ws.onclose = function (event) {
+      console.log(event);
       log('web socket onclose');
     };
     ws.onerror = error => {
       log('web socket onerror', error);
+      ws.close();
     };
     ws.onmessage = messageEvent => {
       log('web socket onmessage');
