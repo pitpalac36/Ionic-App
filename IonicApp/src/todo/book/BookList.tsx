@@ -148,7 +148,7 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                 </IonFab>
                 <IonToast
                     isOpen={savedOffline ? true : false}
-                    message="Your changes will be visible when you get back online!"
+                    message="Your changes will be visible on server when you get back online!"
                     duration={2000}/>
             </IonContent>
         </IonPage>

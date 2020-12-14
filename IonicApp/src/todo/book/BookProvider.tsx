@@ -116,7 +116,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                 alert("SYNC data");
                 await syncData(token);
             }
-                
             setConnectedNetworkStatus(status.connected);
         });
         return () => {
@@ -155,7 +154,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                         }
                         return saved;
                     });
-                    dispatch({type: FETCH_ITEMS_FAILED, payload: {items: books}});
+                    dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: books}});
                 } else {
                     try {
                         log('fetchBooks started');
@@ -179,7 +178,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                             }
                             return saved;
                         });
-                        dispatch({type: FETCH_ITEMS_FAILED, payload: {items: books}});
+                        dispatch({type: FETCH_ITEMS_SUCCEEDED, payload: {items: books}});
                     }
                 }
                 
@@ -212,7 +211,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                       finishedReading: item.finishedReading
                       })
                   });
-                dispatch({type: SAVE_ITEM_FAILED, payload: {item : item}});
+                dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item : item}});
                 setSavedOffline(true);
             }
         }
@@ -222,7 +221,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                 key: String(item._id),
                 value: JSON.stringify(item)
             })
-            dispatch({type: SAVE_ITEM_FAILED, payload: {item : item}});
+            dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item : item}});
         }
     }
 

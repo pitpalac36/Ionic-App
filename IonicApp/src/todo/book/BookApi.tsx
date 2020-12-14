@@ -15,6 +15,12 @@ interface MessageData {
   payload: BookProps;
 }
 
+const different = (book1: any, book2: any) => {
+    if (book1.title === book2.title && book1.genre === book2.genre && book1.startedReading === book2.startedReading && book1.finishedReading === book2.finishedReading)
+      return false;
+    return true;
+}
+
 export const syncData: (token: string) => Promise<BookProps[]> = async token => {
   try {
     const { keys } = await Storage.keys();
@@ -25,10 +31,10 @@ export const syncData: (token: string) => Promise<BookProps[]> = async token => 
           const bookOnServer = result.data.find((each: { _id: string; }) => each._id === i);
           const bookLocal = await Storage.get({key: i});
 
-          alert('BOOK ON SERVER: ' + bookOnServer);
-          alert('BOOK LOCALLY: ' + bookLocal);
+          alert('BOOK ON SERVER: ' + JSON.stringify(bookOnServer));
+          alert('BOOK LOCALLY: ' + bookLocal.value!);
 
-          if (bookOnServer !== undefined && bookOnServer !== bookLocal) {  // actualizare
+          if (bookOnServer !== undefined && different(bookOnServer, JSON.parse(bookLocal.value!))) {  // actualizare
             alert('UPDATE ' + bookLocal.value);
             axios.put(`${baseUrl}/book/${i}`, JSON.parse(bookLocal.value!), authConfig(token));
           } else if (bookOnServer === undefined){  // creare
