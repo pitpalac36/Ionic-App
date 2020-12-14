@@ -15,7 +15,44 @@ interface MessageData {
   payload: BookProps;
 }
 
-export const getItems: (token: string) => Promise<BookProps[]> = token => {
+export const syncData: (token: string) => Promise<BookProps[]> = async token => {
+  try {
+    const { keys } = await Storage.keys();
+    var result = axios.get(`${baseUrl}/books`, authConfig(token));
+    result.then(async result => {
+      keys.forEach(async i => {
+        if (i !== 'token') {
+          const bookOnServer = result.data.find((each: { _id: string; }) => each._id === i);
+          const bookLocal = await Storage.get({key: i});
+
+          alert('BOOK ON SERVER: ' + bookOnServer);
+          alert('BOOK LOCALLY: ' + bookLocal);
+
+          if (bookOnServer !== undefined && bookOnServer !== bookLocal) {  // actualizare
+            alert('UPDATE ' + bookLocal.value);
+            axios.put(`${baseUrl}/book/${i}`, JSON.parse(bookLocal.value!), authConfig(token));
+          } else if (bookOnServer === undefined){  // creare
+            alert('CREATE' + bookLocal.value!);
+            axios.post(`${baseUrl}/book`, JSON.parse(bookLocal.value!), authConfig(token));
+          }
+        }
+        })
+    }).catch(err => {
+      if (err.response) {
+        console.log('client received an error response (5xx, 4xx)');
+      } else if (err.request) {
+        console.log('client never received a response, or request never left');
+      } else {
+        console.log('anything else');
+      }
+  })
+    return withLogs(result, 'syncItems');
+  } catch (error) {
+    throw error;
+  }    
+}
+
+export const getItems: (token: string) => Promise<BookProps[]> = token => {  
   try {
     var result = axios.get(`${baseUrl}/books`, authConfig(token));
     result.then(async result => {
@@ -36,7 +73,6 @@ export const getItems: (token: string) => Promise<BookProps[]> = token => {
         console.log('client received an error response (5xx, 4xx)');
       } else if (err.request) {
         console.log('client never received a response, or request never left');
-        //alert('offline');
       } else {
         console.log('anything else');
       }
@@ -44,8 +80,7 @@ export const getItems: (token: string) => Promise<BookProps[]> = token => {
     return withLogs(result, 'getItems');
   } catch (error) {
     throw error;
-  }
-    
+  }    
 }
 
 export const createItem: (token: string, book: BookProps) => Promise<BookProps[]> = (token, book) => {
@@ -63,7 +98,15 @@ export const createItem: (token: string, book: BookProps) => Promise<BookProps[]
           finishedReading: one.finishedReading
           })
       });
-    });
+    }).catch(err => {
+      if (err.response) {
+        console.log('client received an error response (5xx, 4xx)');
+      } else if (err.request) {
+        alert('client never received a response, or request never left');
+      } else {
+        console.log('anything else');
+      }
+  });
     return withLogs(result, 'createItem');
 }
 
@@ -81,7 +124,15 @@ export const editItem: (token: string, book: BookProps) => Promise<BookProps[]> 
           startedReading: one.startedReading,
           finishedReading: one.finishedReading
           })
-      });
+      }).catch(err => {
+        if (err.response) {
+          alert('client received an error response (5xx, 4xx)');
+        } else if (err.request) {
+          alert('client never received a response, or request never left');
+        } else {
+          alert('anything else');
+        }
+    })
     });
     return withLogs(result, 'updateItem');
 }

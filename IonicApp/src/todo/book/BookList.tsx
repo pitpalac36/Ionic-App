@@ -1,12 +1,13 @@
-import { IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonToolbar } from "@ionic/react";
+import { IonChip, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSearchbar, IonSelect, IonSelectOption, IonToast, IonToolbar } from "@ionic/react";
 import React, { useContext, useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { Redirect, RouteComponentProps } from "react-router";
 import { BookContext } from "./BookProvider";
 import Book from "./Book";
 import {add} from 'ionicons/icons';
 import { AuthContext } from "../auth";
 import { BookProps } from "./BookProps";
 import { getLogger } from '../../core';
+import {Network} from '@capacitor/core';
 
 const log = getLogger('BookList');
 
@@ -20,6 +21,15 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
     const [page, setPage] = useState(offset)
     const [filter, setFilter] = useState<string | undefined>(undefined);
     const [search, setSearch] = useState<string>("");
+    const [status, setStatus] = useState<boolean>(true);
+
+    const {savedOffline, setSavedOffline} = useContext(BookContext);
+
+    Network.getStatus().then(status => setStatus(status.connected));
+
+    Network.addListener('networkStatusChange', (status) => {
+        setStatus(status.connected);
+    })
 
     const genres = ["war", "crime", "drama", "romance", "thriller", "comedy", "fantasy"];
 
@@ -61,25 +71,30 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
         fetchData();
         ($event.target as HTMLIonInfiniteScrollElement).complete();
     }
+
+
     
     return (
         <IonPage>
             <IonHeader>
                 <IonToolbar>
                     <IonItem>
-                        <IonSelect value={filter} placeholder="Pick a genre" onIonChange={(e) => setFilter(e.detail.value)}>
+                        <IonSelect style={{ width: '40%' }} value={filter} placeholder="Pick a genre" onIonChange={(e) => setFilter(e.detail.value)}>
                             {genres.map((each) => (
                                 <IonSelectOption key={each} value={each}>
                                         {each}
                                 </IonSelectOption>
                             ))}
                         </IonSelect>
-                        <IonSearchbar placeholder="Search by title" value={search} debounce={200} onIonChange={(e) => {
+                        <IonSearchbar style={{ width: '50%' }} placeholder="Search by title" value={search} debounce={200} onIonChange={(e) => {
                             setSearch(e.detail.value!);
                         }}>
-
                         </IonSearchbar>
+                        <IonChip>
+                        <IonLabel color={status? "success" : "danger"}>{status? "Online" : "Offline"}</IonLabel>
+                    </IonChip>
                     </IonItem>
+                    
                 </IonToolbar>
             </IonHeader>
 
@@ -128,9 +143,13 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
 
                 <IonFab vertical="bottom" horizontal="start" slot="fixed">
                     <IonFabButton onClick={handleLogout}>
-                        LOG OUT
+                        LOGOUT
                     </IonFabButton>
                 </IonFab>
+                <IonToast
+                    isOpen={savedOffline ? true : false}
+                    message="Your changes will be visible when you get back online!"
+                    duration={2000}/>
             </IonContent>
         </IonPage>
     );
