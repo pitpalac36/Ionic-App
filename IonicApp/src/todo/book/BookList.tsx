@@ -31,7 +31,8 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
         setStatus(status.connected);
     })
 
-    const genres = ["war", "crime", "drama", "romance", "thriller", "comedy", "fantasy"];
+
+    const genres = ["war", "crime", "drama", "romance", "thriller", "comedy", "fantasy", "gothic"];
 
     useEffect(() => {
         if (items?.length && items?.length > 0) {
@@ -111,6 +112,8 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                 <IonLabel>Genre</IonLabel>
                                 <IonLabel>Started Reading</IonLabel>
                                 <IonLabel>Reading finished</IonLabel>
+                                <IonLabel>Latitude</IonLabel>
+                                <IonLabel>Longitude</IonLabel>
                             </IonListHeader>
                             {Array.from(visibleItems)
                                 .filter(each => {
@@ -118,8 +121,8 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                         return each.genre === filter && each._id !== undefined;
                                     return each._id !== undefined;
                                 })
-                                .map(({_id, title, genre, startedReading, finishedReading}) => 
-                                <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
+                                .map(({_id, title, genre, startedReading, finishedReading, latitude, longitude}) => 
+                                <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  latitude={latitude} longitude={longitude} onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
                         </IonList>
                     )
                 }

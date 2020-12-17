@@ -6,7 +6,7 @@ interface BookPropsExtended extends BookProps {
     onEdit: (_id? : string) => void;
 }
 
-const Book: React.FC<BookPropsExtended> = ({_id, title, genre, startedReading, finishedReading, onEdit}) => {
+const Book: React.FC<BookPropsExtended> = ({_id, title, genre, startedReading, finishedReading, latitude, longitude, onEdit}) => {
     return (
         <IonItem onClick={ () => onEdit(_id) }>
             <IonLabel>{_id}</IonLabel>
@@ -14,6 +14,8 @@ const Book: React.FC<BookPropsExtended> = ({_id, title, genre, startedReading, f
             <IonLabel>{genre}</IonLabel>
             <IonLabel>{startedReading}</IonLabel>
             <IonLabel>{finishedReading.toString()}</IonLabel>
+            <IonLabel>{latitude}</IonLabel>
+            <IonLabel>{longitude}</IonLabel>
         </IonItem>
     )
 };

@@ -1,10 +1,12 @@
-import { IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonInput, IonItem, IonLabel, IonLoading, IonPage, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonContent, IonDatetime, IonHeader, IonInput, IonItem, IonLabel, IonList, IonListHeader, IonLoading, IonPage, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from '@ionic/react';
 import React, { useEffect } from 'react';
 import { useContext, useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { BookContext } from './BookProvider';
 import { getLogger } from '../../core';
 import { BookProps } from './BookProps';
+import {MyMap} from '../../core/MyMap';
+import {useMyLocation} from '../../core/useMyLocation';
 import moment from 'moment';
 
 const log = getLogger('ItemEdit');
@@ -22,6 +24,14 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
     const [finishedReading, setfinishedReading] = useState(false);
     const [item, setItem] = useState<BookProps>();
 
+    const [latitude, setLatitude] = useState<number | undefined>(undefined);
+    const [longitude, setLongitude] = useState<number | undefined>(undefined);
+    const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
+    const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
+
+    const location = useMyLocation();
+    const {latitude : lat, longitude : lng} = location.position?.coords || {};
+
     useEffect(() => {
         log('useEffect');
         const routeId = match.params.id || '';
@@ -32,15 +42,32 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
             setGenre(item.genre);
             setstartedReading(item.startedReading);
             setfinishedReading(item.finishedReading);
+            setLatitude(item.latitude);
+            setLongitude(item.longitude);
         }
     }, [match.params.id, items]);
 
+    useEffect(() => {
+        if (latitude === undefined && longitude === undefined) {
+            setCurrentLatitude(lat);
+            setCurrentLongitude(lng);
+        } else {
+            setCurrentLatitude(latitude);
+            setCurrentLongitude(longitude);
+        }
+    }, [lat, lng, longitude, latitude]);
+
     const handleSave = () => {
         log('entered handleSave');
-        const editedItem = item ? {...item, title, genre, startedReading, finishedReading } : { title, genre, startedReading, finishedReading };
+        const editedItem = item ? {...item, title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude } : { title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude };
         console.log(editedItem);
         saveItem && saveItem(editedItem).then(() => {history.goBack()});
     };
+
+    function setLocation() {
+        setLatitude(currentLatitude);
+        setLongitude(currentLongitude);
+    }
 
      return (
      <IonPage>
@@ -71,6 +98,7 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
                     <IonSelectOption value="thriller">thriller</IonSelectOption>
                     <IonSelectOption value="comedy">comedy</IonSelectOption>
                     <IonSelectOption value="fantasy">fantasy</IonSelectOption>
+                    <IonSelectOption value="gothic horror">gothic horror</IonSelectOption>
                 </IonSelect>
                 
             </IonItem>
@@ -82,6 +110,21 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
                 <IonLabel>Finished Reading: </IonLabel>
                 <IonToggle checked={finishedReading} onIonChange={e => setfinishedReading(e.detail.checked)}/>
             </IonItem>
+
+            <IonItem>
+                <IonLabel>Show us where you got the book from!</IonLabel>
+                <IonButton onClick={setLocation}>Set location</IonButton>
+            </IonItem>
+
+            {lat && lng &&
+                <MyMap
+                   lat={currentLatitude}
+                   lng={currentLongitude}
+                   onMapClick={log('onMap')}
+                   onMarkerClick={log('onMarker')}
+                />
+            }
+
             <IonLoading isOpen={saving}/>
             {savingError && (
                 <div>{savingError?.message || 'Failed to save book'}</div>
@@ -89,7 +132,17 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
         </IonContent>
      </IonPage>
     );
+
+    function log(source: string) {
+        return (e: any) => {
+        setCurrentLatitude(e.latLng.lat());
+        setCurrentLongitude(e.latLng.lng());
+        console.log(source, e.latLng.lat(), e.latLng.lng());
+        }
+    }
 };
+
+
 
 
 export default BookEdit;

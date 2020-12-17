@@ -31,14 +31,14 @@ export const syncData: (token: string) => Promise<BookProps[]> = async token => 
           const bookOnServer = result.data.find((each: { _id: string; }) => each._id === i);
           const bookLocal = await Storage.get({key: i});
 
-          alert('BOOK ON SERVER: ' + JSON.stringify(bookOnServer));
-          alert('BOOK LOCALLY: ' + bookLocal.value!);
+          console.log('BOOK ON SERVER: ' + JSON.stringify(bookOnServer));
+          console.log('BOOK LOCALLY: ' + bookLocal.value!);
 
           if (bookOnServer !== undefined && different(bookOnServer, JSON.parse(bookLocal.value!))) {  // actualizare
-            alert('UPDATE ' + bookLocal.value);
+            console.log('UPDATE ' + bookLocal.value);
             axios.put(`${baseUrl}/book/${i}`, JSON.parse(bookLocal.value!), authConfig(token));
           } else if (bookOnServer === undefined){  // creare
-            alert('CREATE' + bookLocal.value!);
+            console.log('CREATE' + bookLocal.value!);
             axios.post(`${baseUrl}/book`, JSON.parse(bookLocal.value!), authConfig(token));
           }
         }
@@ -70,7 +70,9 @@ export const getItems: (token: string) => Promise<BookProps[]> = token => {
               title: each.title,
               genre: each.genre,
               startedReading: each.startedReading,
-              finishedReading: each.finishedReading
+              finishedReading: each.finishedReading,
+              latitude: each.latitude,
+              longitude: each.longitude
             })
           });
       }
@@ -101,7 +103,9 @@ export const createItem: (token: string, book: BookProps) => Promise<BookProps[]
           title: one.title,
           genre: one.genre,
           startedReading: one.startedReading,
-          finishedReading: one.finishedReading
+          finishedReading: one.finishedReading,
+          latitude: one.latitude,
+          longitude: one.longitude
           })
       });
     }).catch(err => {
@@ -128,7 +132,9 @@ export const editItem: (token: string, book: BookProps) => Promise<BookProps[]> 
           title: one.title,
           genre: one.genre,
           startedReading: one.startedReading,
-          finishedReading: one.finishedReading
+          finishedReading: one.finishedReading,
+          latitude: one.latitude,
+          longitude: one.longitude
           })
       }).catch(err => {
         if (err.response) {

@@ -113,7 +113,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
             if (canceled) return;
             const connected = status.connected;
             if (connected) {
-                alert("SYNC data");
+                console.log("networkEffect - SYNC data");
                 await syncData(token);
             }
             setConnectedNetworkStatus(status.connected);
@@ -140,7 +140,6 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
             async function fetchBooks() {
                 if (!token?.trim()) return;
                 if (!navigator?.onLine) {
-                    alert("LE IAU OFFLINE DIN STORAGE")
                     let storageKeys = Storage.keys();
                     const books = await storageKeys.then(async function (storageKeys) {
                         const saved = [];
@@ -198,7 +197,7 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
             }
             
             else {
-                alert('saveBook offline');
+                console.log('saveBook offline');
                 log('saveBook failed');
                 item._id = (item._id == undefined) ? ('_' + Math.random().toString(36).substr(2, 9)) : item._id;
                 await Storage.set({
@@ -208,7 +207,9 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                       title: item.title,
                       genre: item.genre,
                       startedReading: item.startedReading,
-                      finishedReading: item.finishedReading
+                      finishedReading: item.finishedReading,
+                      latitude: item.latitude,
+                      longitude: item.longitude
                       })
                   });
                 dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item : item}});

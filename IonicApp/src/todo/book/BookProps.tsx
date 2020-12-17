@@ -5,4 +5,6 @@ export interface BookProps {
     genre: string;
     startedReading: string;
     finishedReading: boolean;
+    latitude?: number;
+    longitude?: number;
 }
