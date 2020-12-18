@@ -7,4 +7,5 @@ export interface BookProps {
     finishedReading: boolean;
     latitude?: number;
     longitude?: number;
+    webViewPath: string;
 }

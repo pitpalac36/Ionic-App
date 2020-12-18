@@ -114,6 +114,7 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                 <IonLabel>Reading finished</IonLabel>
                                 <IonLabel>Latitude</IonLabel>
                                 <IonLabel>Longitude</IonLabel>
+                                <IonLabel>Picture</IonLabel>
                             </IonListHeader>
                             {Array.from(visibleItems)
                                 .filter(each => {
@@ -121,8 +122,8 @@ const BookList : React.FC<RouteComponentProps> = ({history}) => {
                                         return each.genre === filter && each._id !== undefined;
                                     return each._id !== undefined;
                                 })
-                                .map(({_id, title, genre, startedReading, finishedReading, latitude, longitude}) => 
-                                <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  latitude={latitude} longitude={longitude} onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
+                                .map(({_id, title, genre, startedReading, finishedReading, latitude, longitude, webViewPath}) => 
+                                <Book key={_id} _id={_id} title={title} genre={genre} startedReading={startedReading} finishedReading={finishedReading || false}  latitude={latitude} longitude={longitude} webViewPath={webViewPath} onEdit={_id => history.push(`/api/items/book/${_id}`)} />)}
                         </IonList>
                     )
                 }

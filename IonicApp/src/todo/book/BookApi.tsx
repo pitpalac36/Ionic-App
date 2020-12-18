@@ -72,7 +72,8 @@ export const getItems: (token: string) => Promise<BookProps[]> = token => {
               startedReading: each.startedReading,
               finishedReading: each.finishedReading,
               latitude: each.latitude,
-              longitude: each.longitude
+              longitude: each.longitude,
+              webViewPath: each.webViewPath
             })
           });
       }
@@ -105,7 +106,8 @@ export const createItem: (token: string, book: BookProps) => Promise<BookProps[]
           startedReading: one.startedReading,
           finishedReading: one.finishedReading,
           latitude: one.latitude,
-          longitude: one.longitude
+          longitude: one.longitude,
+          webViewPath: one.webViewPath
           })
       });
     }).catch(err => {
@@ -134,7 +136,8 @@ export const editItem: (token: string, book: BookProps) => Promise<BookProps[]> 
           startedReading: one.startedReading,
           finishedReading: one.finishedReading,
           latitude: one.latitude,
-          longitude: one.longitude
+          longitude: one.longitude,
+          webViewPath: one.webViewPath
           })
       }).catch(err => {
         if (err.response) {

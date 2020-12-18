@@ -3,13 +3,11 @@ import React, { useEffect } from 'react';
 import { useContext, useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { BookContext } from './BookProvider';
-import { getLogger } from '../../core';
 import { BookProps } from './BookProps';
 import {MyMap} from '../../core/MyMap';
 import {useMyLocation} from '../../core/useMyLocation';
+import {usePhotoGallery} from '../../core/usePhotoGallery';
 import moment from 'moment';
-
-const log = getLogger('ItemEdit');
 
 
 interface BookEditProps extends RouteComponentProps<{
@@ -28,9 +26,12 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
     const [longitude, setLongitude] = useState<number | undefined>(undefined);
     const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
     const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
+    const [webViewPath, setWebViewPath] = useState('');
 
     const location = useMyLocation();
     const {latitude : lat, longitude : lng} = location.position?.coords || {};
+
+    const {takePhoto} = usePhotoGallery();
 
     useEffect(() => {
         log('useEffect');
@@ -44,6 +45,7 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
             setfinishedReading(item.finishedReading);
             setLatitude(item.latitude);
             setLongitude(item.longitude);
+            setWebViewPath(item.webViewPath);
         }
     }, [match.params.id, items]);
 
@@ -59,10 +61,19 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
 
     const handleSave = () => {
         log('entered handleSave');
-        const editedItem = item ? {...item, title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude } : { title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude };
+        const editedItem = item ? {...item, title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude, webViewPath: webViewPath } : { title, genre, startedReading, finishedReading, latitude: latitude, longitude: longitude, webViewPath: webViewPath };
         console.log(editedItem);
         saveItem && saveItem(editedItem).then(() => {history.goBack()});
     };
+
+    async function handlePhotoChange() {
+        const image = await takePhoto();
+        if (!image) {
+            setWebViewPath('');
+        } else {
+            setWebViewPath(image);
+        }
+    }
 
     function setLocation() {
         setLatitude(currentLatitude);
@@ -115,6 +126,9 @@ const BookEdit: React.FC<BookEditProps> = ({history, match}) => {
                 <IonLabel>Show us where you got the book from!</IonLabel>
                 <IonButton onClick={setLocation}>Set location</IonButton>
             </IonItem>
+
+            {webViewPath && (<img onClick={handlePhotoChange} src={webViewPath} width={'100px'} height={'100px'}/>)}
+            {!webViewPath && (<img onClick={handlePhotoChange} src={'https://static.thenounproject.com/png/187803-200.png'} width={'100px'} height={'100px'}/>)}
 
             {lat && lng &&
                 <MyMap

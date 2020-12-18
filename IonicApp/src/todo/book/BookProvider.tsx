@@ -209,7 +209,8 @@ export const BookProvider: React.FC<BookProviderProps> = ({children}) => {
                       startedReading: item.startedReading,
                       finishedReading: item.finishedReading,
                       latitude: item.latitude,
-                      longitude: item.longitude
+                      longitude: item.longitude,
+                      webViewPath: item.webViewPath
                       })
                   });
                 dispatch({type: SAVE_ITEM_SUCCEEDED, payload: {item : item}});
