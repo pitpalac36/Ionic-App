@@ -11,3 +11,9 @@ This app manages a reading list (each book identified by id, title, genre, readi
   -> persist resources in the local storage
   
   -> provide pagination, searching & filtering
+
+  -> provide offline support & show status (online/offline)
+  
+  -> allow user to take, upload, save photos
+  
+  -> use maps
