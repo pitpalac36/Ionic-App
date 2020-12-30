@@ -47,7 +47,7 @@ export function usePhotoGallery() {
 
     return {
       filepath: fileName,
-      webviewPath: photo.webPath
+      webviewPath: base64Data
     };
   };
 
