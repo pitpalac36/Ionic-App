@@ -17,3 +17,5 @@ This app manages a reading list (each book identified by id, title, genre, readi
   -> allow user to take, upload, save photos
   
   -> use maps
+
+  -> show animations (basic, grouped, chained & component animations)
