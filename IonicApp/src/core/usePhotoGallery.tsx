@@ -24,7 +24,6 @@ export function usePhotoGallery() {
       });
       const fileName = new Date().getTime() + '.jpeg';
       const savedFileImage = await savePicture(cameraPhoto, fileName);
-      //alert(savedFileImage.base64Data);
       const newPhotos = [savedFileImage, ...photos];
       setPhotos(newPhotos);
       set(PHOTO_STORAGE, JSON.stringify(newPhotos));
